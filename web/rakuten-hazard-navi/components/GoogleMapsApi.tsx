@@ -7,31 +7,30 @@ import {
   useMap,
 } from '@vis.gl/react-google-maps';
 import { useEffect } from 'react';
-import { useCameraProps } from '@/hooks/useCameraProps';
 import { useInfoWindow } from '@/hooks/useInfoWindow';
 import { useDeckGlLayers } from '@/hooks/useDeckGlLayers';
 import useSWR from 'swr';
 import axios from 'axios';
 import { hazardmapApiMock } from '@/mocks/hazardmapApiMoack';
 
-function calculateCenter(bounds: any) {
-  const [lon1, lat1, lon2, lat2] = bounds;
-
-  const centerLon = (lon1 + lon2) / 2;
-  const centerLat = (lat1 + lat2) / 2;
-
-  return { centerLon, centerLat };
-}
-
 const GoogleMapsApi = () => {
   const map = useMap();
+  const apiIsLoaded = useApiIsLoaded();
 
-  // const { data: tmpHzardmapData } = useSWR(`/api/hazardmapApi`, axios);
-  const tmpHzardmapData = hazardmapApiMock;
-  const hazardmapData = tmpHzardmapData;
+  const { data: tmpHzardmapData, isLoading } = useSWR(
+    `/api/hazardmapApi`,
+    axios
+  );
+
+  // const hazardmapData = hazardmapApiMock;
+  const hazardmapData = tmpHzardmapData?.data;
+  // console.log('tmpHzardmapData', tmpHzardmapData);
 
   // オーバーレイをセット
-  const orverlyaImage = `data:image/png;base64,${hazardmapData?.image}`;
+  const orverlyaImage = hazardmapData?.image
+    ? `data:image/png;base64,${hazardmapData.image}`
+    : '';
+
   const orverlayBounds = [
     hazardmapData?.bottom_left?.lon,
     hazardmapData?.bottom_left?.lat,
@@ -56,20 +55,19 @@ const GoogleMapsApi = () => {
   }, [layers]);
 
   // 中心をセット
-  const { centerLon, centerLat } = calculateCenter(orverlayBounds);
   const currentPosition = {
-    lat: centerLat,
-    lng: centerLon,
+    lat: (hazardmapData?.bottom_left?.lat + hazardmapData?.top_right?.lat) / 2,
+    lng: (hazardmapData?.bottom_left?.lon + hazardmapData?.top_right?.lon) / 2,
   };
-  const { cameraProps, handleCameraChange } = useCameraProps(currentPosition);
 
   // 制限エリアをセット
   const bounds = {
-    north: hazardmapData?.top_right?.lat, // 上側の緯度
-    south: hazardmapData?.bottom_left?.lat, // 下側の緯度
-    east: hazardmapData?.top_right?.lon, // 右側の経度
-    west: hazardmapData?.bottom_left?.lon, // 左側の経度
+    north: hazardmapData?.top_right?.lat,
+    south: hazardmapData?.bottom_left?.lat,
+    east: hazardmapData?.top_right?.lon,
+    west: hazardmapData?.bottom_left?.lon,
   };
+  console.log('bounds', bounds);
   useEffect(() => {
     if (map) {
       // 制限範囲を適用
@@ -87,17 +85,21 @@ const GoogleMapsApi = () => {
   const { markerRef, marker, infoWindowShown, handleMarkerClick, handleClose } =
     useInfoWindow();
 
+  if (!apiIsLoaded) {
+    return <div>Loading...map</div>;
+  }
+  if (isLoading) return <div>loading...</div>;
   return (
     <>
       <Map
         style={{ width: '100vw', height: '100vh' }}
-        {...cameraProps}
-        onCameraChanged={handleCameraChange}
+        defaultCenter={currentPosition}
+        defaultZoom={12}
         gestureHandling={'greedy'}
         disableDefaultUI={true}
         mapId="c0ad196a416ee5f8"
       />
-      <Marker position={{ lat: 35.687417, lng: 139.774006 }} />
+      <Marker position={currentPosition} />
       {/* <Marker position={{ lat: 35.675069, lng: 139.763328 }} /> */}
       {/* <Marker position={{ lat: 35.694099, lng: 139.737358 }} /> */}
       <AdvancedMarker
