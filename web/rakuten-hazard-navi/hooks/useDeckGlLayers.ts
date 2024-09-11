@@ -1,7 +1,7 @@
 // hooks/useDeckGlLayers.ts
-import { useMemo } from "react";
-import { BitmapLayer } from "@deck.gl/layers";
-import { GoogleMapsOverlay } from "@deck.gl/google-maps";
+import { useMemo } from 'react';
+import { BitmapLayer } from '@deck.gl/layers';
+import { GoogleMapsOverlay } from '@deck.gl/google-maps';
 
 interface UseDeckGlLayersProps {
   bounds: number[];
@@ -9,14 +9,15 @@ interface UseDeckGlLayersProps {
 }
 
 export const useDeckGlLayers = ({ bounds, image }: UseDeckGlLayersProps) => {
+  console.log('image', image);
   const bitmapLayer = useMemo(
     () =>
       new BitmapLayer({
-        id: "bitmap-layer",
+        id: 'bitmap-layer',
         bounds, // LON(経度), LAT(緯度)の順
         image, // ラスターデータのURL
       }),
-    [bounds, image],
+    [bounds, image]
   );
 
   const layers = useMemo(() => [bitmapLayer], [bitmapLayer]);

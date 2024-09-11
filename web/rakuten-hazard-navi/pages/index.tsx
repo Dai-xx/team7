@@ -15,19 +15,15 @@ const geistMono = localFont({
   weight: '100 900',
 });
 
+const center = {
+  lat: 35.4550426,
+  lon: 139.6312741,
+};
+
 export default function Home() {
   return (
     <main>
-      <GoogleMapsApi />
-      {/* <div className="relative h-[100px] w-[100px]">
-        <Image
-          src={orverlyaImage}
-          alt=""
-          style={{ objectFit: 'cover' }}
-          height={100}
-          width={100}
-        />
-      </div> */}
+      <GoogleMapsApi lat={center.lat} lon={center.lon} mapType={0} />
     </main>
   );
 }

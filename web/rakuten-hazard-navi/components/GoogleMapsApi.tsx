@@ -13,46 +13,62 @@ import useSWR from 'swr';
 import axios from 'axios';
 import { hazardmapApiMock } from '@/mocks/hazardmapApiMoack';
 
-const GoogleMapsApi = () => {
+type Props = {
+  lat: number;
+  lon: number;
+  mapType: number;
+};
+
+const GoogleMapsApi = ({ lat, lon, mapType }) => {
   const map = useMap();
   const apiIsLoaded = useApiIsLoaded();
 
+  // const center = {
+  //   lat: 35.4550426,
+  //   lon: 139.6312741,
+  // };
+
+  // const mapType = 11;
   const { data: tmpHzardmapData, isLoading } = useSWR(
-    `/api/hazardmapApi`,
+    `/api/hazardmapApi/${lat}/${lon}/${mapType}`,
     axios
   );
 
   // const hazardmapData = hazardmapApiMock;
   const hazardmapData = tmpHzardmapData?.data;
   // console.log('tmpHzardmapData', tmpHzardmapData);
+  console.log('err', hazardmapData?.status);
 
   // オーバーレイをセット
-  const orverlyaImage = hazardmapData?.image
+  const overlayImage = hazardmapData?.image
     ? `data:image/png;base64,${hazardmapData.image}`
     : '';
 
-  const orverlayBounds = [
+  const overlayBounds = [
     hazardmapData?.bottom_left?.lon,
     hazardmapData?.bottom_left?.lat,
     hazardmapData?.top_right?.lon,
     hazardmapData?.top_right?.lat,
   ];
   const { layers, deck } = useDeckGlLayers({
-    bounds: orverlayBounds,
-    image: orverlyaImage,
+    bounds: overlayBounds,
+    image: overlayImage,
   });
+
   useEffect(() => {
+    console.log('Map updated or hazardmapData updated:', { map, layers });
     if (map) {
       deck.setMap(map);
     }
     return () => {
       deck.setMap(null);
     };
-  }, [map]);
+  }, [map, tmpHzardmapData]);
 
   useEffect(() => {
+    console.log('Layers set:', layers);
     deck.setProps({ layers });
-  }, [layers]);
+  }, [layers, tmpHzardmapData]);
 
   // 中心をセット
   const currentPosition = {
@@ -67,7 +83,7 @@ const GoogleMapsApi = () => {
     east: hazardmapData?.top_right?.lon,
     west: hazardmapData?.bottom_left?.lon,
   };
-  console.log('bounds', bounds);
+
   useEffect(() => {
     if (map) {
       // 制限範囲を適用
@@ -89,6 +105,7 @@ const GoogleMapsApi = () => {
     return <div>Loading...map</div>;
   }
   if (isLoading) return <div>loading...</div>;
+  if (hazardmapData.status === 404) return <div>Not Found</div>;
   return (
     <>
       <Map
