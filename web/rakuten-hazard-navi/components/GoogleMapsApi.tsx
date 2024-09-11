@@ -1,34 +1,47 @@
-import { AdvancedMarker, APIProvider, InfoWindow, Map, useMap} from "@vis.gl/react-google-maps";
-import { GoogleMapsOverlay } from '@deck.gl/google-maps';
-import { BitmapLayer } from '@deck.gl/layers';
-import { useEffect, useMemo } from "react";
+import {
+  AdvancedMarker,
+  InfoWindow,
+  Map,
+  Marker,
+  useApiIsLoaded,
+  useMap,
+} from '@vis.gl/react-google-maps';
+import { useEffect } from 'react';
+import { useCameraProps } from '@/hooks/useCameraProps';
+import { useInfoWindow } from '@/hooks/useInfoWindow';
+import { useDeckGlLayers } from '@/hooks/useDeckGlLayers';
+import useSWR from 'swr';
+import axios from 'axios';
+import { hazardmapApiMock } from '@/mocks/hazardmapApiMoack';
 
+function calculateCenter(bounds: any) {
+  const [lon1, lat1, lon2, lat2] = bounds;
 
+  const centerLon = (lon1 + lon2) / 2;
+  const centerLat = (lat1 + lat2) / 2;
 
-const positionAkiba = {
-  lat: 35.69731,
-  lng: 139.7747,
-};
-
-const positonTokyoTower = {
-  lat: 35.4550426,
-  lng: 139.6312741
+  return { centerLon, centerLat };
 }
 
-const center = {
-  lat: 35.69575,
-  lng: 139.77521,
-};
-
-const divStyle = {
-  background: "white",
-  fontSize: 7.5,
-};
-
-const DeckGlOverlay = ({ layers }) => {
-  const deck = useMemo(() => new GoogleMapsOverlay({ interleaved: true }), []);
+const GoogleMapsApi = () => {
   const map = useMap();
 
+  // const { data: tmpHzardmapData } = useSWR(`/api/hazardmapApi`, axios);
+  const tmpHzardmapData = hazardmapApiMock;
+  const hazardmapData = tmpHzardmapData;
+
+  // オーバーレイをセット
+  const orverlyaImage = `data:image/png;base64,${hazardmapData?.image}`;
+  const orverlayBounds = [
+    hazardmapData?.bottom_left?.lon,
+    hazardmapData?.bottom_left?.lat,
+    hazardmapData?.top_right?.lon,
+    hazardmapData?.top_right?.lat,
+  ];
+  const { layers, deck } = useDeckGlLayers({
+    bounds: orverlayBounds,
+    image: orverlyaImage,
+  });
   useEffect(() => {
     if (map) {
       deck.setMap(map);
@@ -42,50 +55,74 @@ const DeckGlOverlay = ({ layers }) => {
     deck.setProps({ layers });
   }, [layers]);
 
-  return null;
-};
+  // 中心をセット
+  const { centerLon, centerLat } = calculateCenter(orverlayBounds);
+  const currentPosition = {
+    lat: centerLat,
+    lng: centerLon,
+  };
+  const { cameraProps, handleCameraChange } = useCameraProps(currentPosition);
 
-const LAT_LEFT_UP = 35.442770925857666
-const LON_LEFT_UP = 139.6142578125
-const LAT_RIGHT_DOWN = 35.4606699514953
-const LON_RIGHT_DOWN = 139.63623046875
+  // 制限エリアをセット
+  const bounds = {
+    north: hazardmapData?.top_right?.lat, // 上側の緯度
+    south: hazardmapData?.bottom_left?.lat, // 下側の緯度
+    east: hazardmapData?.top_right?.lon, // 右側の経度
+    west: hazardmapData?.bottom_left?.lon, // 左側の経度
+  };
+  useEffect(() => {
+    if (map) {
+      // 制限範囲を適用
+      map.setOptions({
+        restriction: {
+          latLngBounds: bounds, // 範囲を設定
+          strictBounds: true, // ユーザーが範囲外にパンできないようにする
+        },
+        zoom: 12, // 初期ズームレベル
+      });
+    }
+  }, [map]);
 
-const GoogleMapsApi = () => {
-
-    // ラスターデータを表示するためのBitmapLayer
-  const bitmapLayer = new BitmapLayer({
-    id: 'bitmap-layer',
-    bounds: [LON_LEFT_UP, LAT_LEFT_UP, LON_RIGHT_DOWN, LAT_RIGHT_DOWN], // LON(経度), LAT(緯度)の順
-    image: 'https://cyberjapandata.gsi.go.jp/xyz/std/14/14546/6464.png',  // ラスターデータのURL
-  });
-
-  const deckGlLayers = [bitmapLayer];
+  // マーカーのツールチップハンドリングフック
+  const { markerRef, marker, infoWindowShown, handleMarkerClick, handleClose } =
+    useInfoWindow();
 
   return (
-   <APIProvider apiKey="AIzaSyAvwRzItbKjCTwc9yl9BJmpU_xzLgCi6Xg">
-     <DeckGlOverlay layers={deckGlLayers} />
-    <Map
-      style={{width: '100vw', height: '100vh'}}
-      defaultCenter={positonTokyoTower}
-      defaultZoom={12}
-      gestureHandling={'greedy'}
-      disableDefaultUI={true}
-      mapId="c0ad196a416ee5f8"
-    />
-     <AdvancedMarker position={positonTokyoTower} >
-     <div className="bg-blue-700 w-[50px] h-[50px] rounded-full"></div>
-     </AdvancedMarker>
-     <InfoWindow position={positonTokyoTower}>
-       <div style={divStyle}>
-            <h1>秋葉原オフィス</h1>
-        </div>
-     </InfoWindow>
-  </APIProvider>
- 
+    <>
+      <Map
+        style={{ width: '100vw', height: '100vh' }}
+        {...cameraProps}
+        onCameraChanged={handleCameraChange}
+        gestureHandling={'greedy'}
+        disableDefaultUI={true}
+        mapId="c0ad196a416ee5f8"
+      />
+      <Marker position={{ lat: 35.687417, lng: 139.774006 }} />
+      {/* <Marker position={{ lat: 35.675069, lng: 139.763328 }} /> */}
+      {/* <Marker position={{ lat: 35.694099, lng: 139.737358 }} /> */}
+      <AdvancedMarker
+        ref={markerRef}
+        position={{ lat: 35.694099, lng: 139.737358 }}
+        onClick={handleMarkerClick}
+      >
+        <div className="bg-blue-700 w-[30px] h-[30px] rounded-full"></div>
+      </AdvancedMarker>
+      {infoWindowShown && (
+        <InfoWindow
+          headerContent={<h3 className="text-black">◯✕体育館</h3>}
+          anchor={marker}
+          onClose={handleClose}
+        >
+          <div className="p-2 bg-white text-black">
+            <h1>
+              テキストテキストテキストテキストテキストテキストテキストテキスト
+              テキストテキストテキスト
+            </h1>
+          </div>
+        </InfoWindow>
+      )}
+    </>
   );
 };
 
 export default GoogleMapsApi;
-
-
-
