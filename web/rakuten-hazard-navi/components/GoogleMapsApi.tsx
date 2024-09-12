@@ -167,13 +167,13 @@ const GoogleMapsApi: FC<Props> = ({
               >
                 <Image
                   src="/exit.svg"
-                  width={50}
-                  height={50}
+                  width={25}
+                  height={25}
                   alt=""
                   style={{ objectFit: 'cover' }}
                 />
               </AdvancedMarker>
-              {selectedMarker === index && infoWindowShown && (
+              {selectedMarker === index && InfoWindow && (
                 <InfoWindow
                   headerContent={<h3 className="text-black">◯✕体育館</h3>}
                   anchor={marker}
