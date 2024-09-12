@@ -9,9 +9,6 @@ import {
 import { FC, useEffect, useState } from 'react';
 import { useInfoWindow } from '@/hooks/useInfoWindow';
 import { useDeckGlLayers } from '@/hooks/useDeckGlLayers';
-import useSWR from 'swr';
-import axios from 'axios';
-import { hazardmapApiMock } from '@/mocks/hazardmapApiMoack';
 import { Callout } from '@radix-ui/themes';
 import { InfoCircledIcon } from '@radix-ui/react-icons';
 import Loading from './Loading';
@@ -173,7 +170,7 @@ const GoogleMapsApi: FC<Props> = ({
                   style={{ objectFit: 'cover' }}
                 />
               </AdvancedMarker>
-              {selectedMarker === index && infoWindowShown && (
+              {selectedMarker === index && InfoWindow && (
                 <InfoWindow
                   headerContent={<h3 className="text-black">◯✕体育館</h3>}
                   anchor={marker}
