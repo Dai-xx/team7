@@ -9,9 +9,6 @@ import {
 import { FC, useEffect, useState } from 'react';
 import { useInfoWindow } from '@/hooks/useInfoWindow';
 import { useDeckGlLayers } from '@/hooks/useDeckGlLayers';
-import useSWR from 'swr';
-import axios from 'axios';
-import { hazardmapApiMock } from '@/mocks/hazardmapApiMoack';
 import { Callout } from '@radix-ui/themes';
 import { InfoCircledIcon } from '@radix-ui/react-icons';
 import Loading from './Loading';
@@ -20,9 +17,9 @@ import Image from 'next/image';
 
 type Props = {
   isExitFlag: boolean;
-  hazardmapData: any;
+  hazardmapData: object;
   hazardmapDataLoading: boolean;
-  shelterData: any;
+  shelterData: object;
   shelterDataLoading: boolean;
   center: {
     lat: number;
@@ -40,6 +37,9 @@ const GoogleMapsApi: FC<Props> = ({
 }) => {
   const map = useMap();
   const apiIsLoaded = useApiIsLoaded();
+
+  console.log('hazardmapData type', typeof hazardmapData);
+  console.log('hazardmapData', hazardmapData);
 
   // オーバーレイをセット
   const overlayImage = hazardmapData?.image
