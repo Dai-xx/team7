@@ -8,11 +8,6 @@ import Image from 'next/image';
 import { groupByAddress } from '@/utils/filterUniqueAddresses';
 import { IoIosArrowForward } from 'react-icons/io';
 
-const center = {
-  lat: 35.4550426,
-  lon: 139.6312741,
-};
-
 const mapTyep = [
   { id: '0', title: '地理データ' },
   { id: '1', title: '洪水浸水想定区域' },
@@ -29,6 +24,11 @@ const mapTyep = [
 ];
 
 export default function Home() {
+  const center = {
+    lat: 35.4550426,
+    lon: 139.6312741,
+  };
+
   const [selectedMapType, setSelectedMapType] = useState<string>('0');
   const [isExitFlag, setIsExitFlag] = useState(true);
   const handleValueChange = (value: string) => {
@@ -41,16 +41,12 @@ export default function Home() {
   );
 
   const hazardmapData = tmpHazardmapData?.data;
-
-  const overlayBounds = [
-    hazardmapData?.bottom_left?.lon,
-    hazardmapData?.bottom_left?.lat,
-    hazardmapData?.top_right?.lon,
-    hazardmapData?.top_right?.lat,
-  ];
+  if (selectedMapType === '0' && hazardmapData) {
+    hazardmapData.image = null;
+  }
 
   const { data: tmpShelterData, isLoading: shelterDataLoading } = useSWR(
-    `/api/shelterApi/${overlayBounds}`,
+    `/api/shelterApi?lat1=${hazardmapData?.bottom_left?.lat}&lon1=${hazardmapData?.bottom_left?.lon}&lat2=${hazardmapData?.top_right?.lat}&lon2=${hazardmapData?.top_right?.lon}&lat3=${center.lat}&lon3=${center.lon}`,
     axios
   );
 
@@ -60,46 +56,56 @@ export default function Home() {
   return (
     <main>
       <Theme accentColor="teal" hasBackground={true}>
+        <header className="mx-4">
+          <div className="relative w-[200px] h-[50px]">
+            <Image
+              src="/Rakuten_Team7_service_logo_removebg.png"
+              fill
+              alt=""
+              style={{ objectFit: 'contain' }}
+            />
+          </div>
+        </header>
         <GoogleMapsApi
           isExitFlag={isExitFlag}
           hazardmapData={hazardmapData}
           hazardmapDataLoading={hazaradmapDataLoading}
           shelterData={transformedShelterData}
           shelterDataLoading={shelterDataLoading}
+          center={center}
         />
 
-        <div className="mx-4 pt-3">
-          <div className="flex justify-end items-center">
-            <div className="flex items-center gap-3">
-              <Select.Root defaultValue="0" onValueChange={handleValueChange}>
-                <Select.Trigger />
-                <Select.Content>
-                  <Select.Group>
-                    <Select.Label>Map Type</Select.Label>
-                    {mapTyep.map((item) => {
-                      return (
-                        <Select.Item key={item.id} value={item.id}>
-                          {item.title}
-                        </Select.Item>
-                      );
-                    })}
-                  </Select.Group>
-                </Select.Content>
-              </Select.Root>
-              <div className="flex items-center gap-1">
-                <Image
-                  src="/exit.svg"
-                  width={30}
-                  height={30}
-                  alt=""
-                  style={{ objectFit: 'cover' }}
-                  className="mb-1"
-                />
-                <Switch
-                  defaultChecked
-                  onClick={() => setIsExitFlag(!isExitFlag)}
-                />
-              </div>
+        <p className="text-[8px] mx-1">出典：ハザードマップポータルサイト</p>
+        <div className="mx-4">
+          <div className="flex justify-end gap-3">
+            <Select.Root defaultValue="0" onValueChange={handleValueChange}>
+              <Select.Trigger />
+              <Select.Content>
+                <Select.Group>
+                  <Select.Label>Map Type</Select.Label>
+                  {mapTyep.map((item) => {
+                    return (
+                      <Select.Item key={item.id} value={item.id}>
+                        {item.title}
+                      </Select.Item>
+                    );
+                  })}
+                </Select.Group>
+              </Select.Content>
+            </Select.Root>
+            <div className="flex items-center gap-1">
+              <Image
+                src="/exit.svg"
+                width={30}
+                height={30}
+                alt=""
+                style={{ objectFit: 'cover' }}
+                className="mb-1"
+              />
+              <Switch
+                defaultChecked
+                onClick={() => setIsExitFlag(!isExitFlag)}
+              />
             </div>
           </div>
           <div className="grid grid-cols-3 place-content-center gap-1 mt-2">

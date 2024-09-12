@@ -24,6 +24,10 @@ type Props = {
   hazardmapDataLoading: boolean;
   shelterData: any;
   shelterDataLoading: boolean;
+  center: {
+    lat: number;
+    lon: number;
+  };
 };
 
 const GoogleMapsApi: FC<Props> = ({
@@ -32,16 +36,10 @@ const GoogleMapsApi: FC<Props> = ({
   hazardmapDataLoading,
   shelterData,
   shelterDataLoading,
+  center,
 }) => {
   const map = useMap();
   const apiIsLoaded = useApiIsLoaded();
-
-  // const { data: tmpHazardmapData, isLoading } = useSWR(
-  //   `/api/hazardmapApi/${lat}/${lon}/${mapType}`,
-  //   axios
-  // );
-
-  // const hazardmapData = tmpHazardmapData?.data;
 
   // オーバーレイをセット
   const overlayImage = hazardmapData?.image
@@ -75,8 +73,8 @@ const GoogleMapsApi: FC<Props> = ({
 
   // 中心をセット
   const currentPosition = {
-    lat: (hazardmapData?.bottom_left?.lat + hazardmapData?.top_right?.lat) / 2,
-    lng: (hazardmapData?.bottom_left?.lon + hazardmapData?.top_right?.lon) / 2,
+    lat: center?.lat,
+    lng: center?.lon,
   };
 
   // 制限エリアをセット
@@ -101,7 +99,7 @@ const GoogleMapsApi: FC<Props> = ({
   }, [map]);
 
   // マーカーのツールチップハンドリングフック
-  const { markerRef, marker, infoWindowShown } = useInfoWindow();
+  const { markerRef, marker } = useInfoWindow();
   const [selectedMarker, setSelectedMarker] = useState<number | null>(null);
 
   const handleMarkerClick = (index: number) => {
@@ -157,7 +155,7 @@ const GoogleMapsApi: FC<Props> = ({
 
       <Marker position={currentPosition} />
       {isExitFlag &&
-        shelterData?.map((item: any, index: number) => {
+        shelterData?.map((item: number[], index: number) => {
           const transformedData = transformArray(item);
           return (
             <>
