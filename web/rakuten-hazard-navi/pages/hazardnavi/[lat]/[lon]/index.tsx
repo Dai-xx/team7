@@ -9,6 +9,7 @@ import { groupByAddress } from '@/utils/filterUniqueAddresses';
 import { IoIosArrowForward } from 'react-icons/io';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { useMap } from '@vis.gl/react-google-maps';
 
 const mapType = [
   { id: '0', title: '地理データ', legend: 'null' },
@@ -176,6 +177,17 @@ const Detail = () => {
   const shelterData = tmpShelterData?.data;
   const transformedShelterData = groupByAddress(shelterData);
 
+  const map = useMap();
+  const [selectedCard, setSelectedCard] = useState<number>();
+
+  const handleMarkerClick = (lat: number, lng: number, index: number) => {
+    if (map) {
+      map.panTo({ lat, lng }); // マップの中心をマーカーの位置に移動
+      map.setZoom(15); // ズームレベルを調整する場合
+      setSelectedCard(index);
+    }
+  };
+
   console.log('');
 
   return (
@@ -198,6 +210,7 @@ const Detail = () => {
           shelterData={transformedShelterData}
           shelterDataLoading={shelterDataLoading}
           center={center}
+          selectedCard={selectedCard}
         />
 
         <p className="text-[8px] mx-1">出典：ハザードマップポータルサイト</p>
@@ -238,16 +251,20 @@ const Detail = () => {
             {transformedShelterData && transformedShelterData.length > 0 ? (
               transformedShelterData.slice(0, 3).map((item, index) => {
                 return (
-                  <div
+                  <button
                     key={index}
-                    className="border border-gray-[#D9D9D9] rounded-xl p-2"
+                    onClick={() => handleMarkerClick(item[0], item[1], index)}
                   >
-                    <div className="flex gap-2 items-center">
-                      <div className="border-r border-[#009891] h-[35px]"></div>
-                      <h3 className="text-sm">{item[2]}</h3>
+                    <div
+                      className={`${selectedCard === index ? 'border-[#009891]' : 'border-[#D9D9D9]'} border rounded-xl p-2`}
+                    >
+                      <div className="flex gap-2 items-center">
+                        <div className="border-r border-[#009891] h-[35px]"></div>
+                        <h3 className="text-sm">{item[2]}</h3>
+                      </div>
+                      <p className="text-xs text-[#9A9A9A] mt-1">{item[3]}</p>
                     </div>
-                    <p className="text-xs text-[#9A9A9A] mt-1">{item[3]}</p>
-                  </div>
+                  </button>
                 );
               })
             ) : (

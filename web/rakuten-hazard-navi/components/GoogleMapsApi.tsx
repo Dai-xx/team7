@@ -25,6 +25,7 @@ type Props = {
     lat: number;
     lon: number;
   };
+  selectedCard: number;
 };
 
 const GoogleMapsApi: FC<Props> = ({
@@ -34,6 +35,7 @@ const GoogleMapsApi: FC<Props> = ({
   shelterData,
   shelterDataLoading,
   center,
+  selectedCard,
 }) => {
   const map = useMap();
   const apiIsLoaded = useApiIsLoaded();
@@ -99,12 +101,19 @@ const GoogleMapsApi: FC<Props> = ({
   const { markerRef, marker } = useInfoWindow();
   const [selectedMarker, setSelectedMarker] = useState<number | null>(null);
 
-  const handleMarkerClick = (index: number) => {
-    setSelectedMarker(index);
-  };
+  // const handleMarkerClick = (index: number) => {
+  //   setSelectedMarker(index);
+  // };
 
   const handleClose = () => {
     setSelectedMarker(null);
+  };
+
+  const handleMarkerClick = (lat: number, lng: number) => {
+    if (map) {
+      map.panTo({ lat, lng }); // マップの中心をマーカーの位置に移動
+      map.setZoom(15); // ズームレベルを調整する場合
+    }
   };
 
   if (!apiIsLoaded || hazardmapDataLoading || shelterDataLoading)
@@ -115,30 +124,7 @@ const GoogleMapsApi: FC<Props> = ({
         </div>
       </div>
     );
-  // if (hazardmapData?.status === 404)
-  //   return (
-  //     <div className="h-[65vh] w-screen bg-gray-300 flex justify-center items-center">
-  //       <div>
-  //         <div className="w-full flex justify-center">
-  //           <Image
-  //             src="/undraw_faq_re_31cw.svg"
-  //             width={200}
-  //             height={200}
-  //             alt=""
-  //             style={{ objectFit: 'cover' }}
-  //           />
-  //         </div>
-  //         <Callout.Root>
-  //           <Callout.Icon>
-  //             <InfoCircledIcon />
-  //           </Callout.Icon>
-  //           <Callout.Text>
-  //             現在のエリアで該当するデータが存在しません。
-  //           </Callout.Text>
-  //         </Callout.Root>
-  //       </div>
-  //     </div>
-  //   );
+
   console.log('legend', hazardmapData.legend);
   return (
     <>
@@ -172,8 +158,13 @@ const GoogleMapsApi: FC<Props> = ({
                 key={index}
                 ref={markerRef}
                 position={transformedData[0]}
-                onClick={() => handleMarkerClick(index)}
-                className={`${index < 3 && 'bg-[#009891]/50 rounded-full p-1'}`}
+                onClick={() =>
+                  handleMarkerClick(
+                    transformedData[0].lat,
+                    transformedData[0].lng
+                  )
+                }
+                className={`${selectedCard === index && 'bg-[#009891]/50 rounded-full p-1'}`}
               >
                 <Image
                   src="/exit.svg"
