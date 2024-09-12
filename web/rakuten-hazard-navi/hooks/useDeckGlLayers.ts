@@ -4,7 +4,7 @@ import { BitmapLayer } from '@deck.gl/layers';
 import { GoogleMapsOverlay } from '@deck.gl/google-maps';
 
 interface UseDeckGlLayersProps {
-  bounds: [number, number, number, number]; // ここで形式を指定
+  bounds: number[];
   image: string;
 }
 
