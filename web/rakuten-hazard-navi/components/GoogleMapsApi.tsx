@@ -15,11 +15,30 @@ import Loading from './Loading';
 import { transformArray } from '@/utils/transformArray';
 import Image from 'next/image';
 
+type Coordinates = {
+  lat: number;
+  lon: number;
+};
+
+type HazardMapData = {
+  bottom_left: Coordinates;
+  image: string | null;
+  status: number;
+  top_right: Coordinates;
+};
+
+type Shelter = {
+  lat: number;
+  lon: number;
+  name: string;
+  address: string;
+};
+
 type Props = {
   isExitFlag: boolean;
-  hazardmapData: object;
+  hazardmapData: HazardMapData;
   hazardmapDataLoading: boolean;
-  shelterData: object;
+  shelterData: Shelter[];
   shelterDataLoading: boolean;
   center: {
     lat: number;
@@ -38,8 +57,8 @@ const GoogleMapsApi: FC<Props> = ({
   const map = useMap();
   const apiIsLoaded = useApiIsLoaded();
 
-  console.log('hazardmapData type', typeof hazardmapData);
-  console.log('hazardmapData', hazardmapData);
+  console.log('shelterData type', typeof shelterData);
+  console.log('shelterData', shelterData);
 
   // オーバーレイをセット
   const overlayImage = hazardmapData?.image
@@ -155,7 +174,7 @@ const GoogleMapsApi: FC<Props> = ({
 
       <Marker position={currentPosition} />
       {isExitFlag &&
-        shelterData?.map((item: number[], index: number) => {
+        shelterData?.map((item, index: number) => {
           const transformedData = transformArray(item);
           return (
             <>
@@ -173,7 +192,7 @@ const GoogleMapsApi: FC<Props> = ({
                   style={{ objectFit: 'cover' }}
                 />
               </AdvancedMarker>
-              {selectedMarker === index && infoWindowShown && (
+              {selectedMarker === index && InfoWindow && (
                 <InfoWindow
                   headerContent={<h3 className="text-black">◯✕体育館</h3>}
                   anchor={marker}
