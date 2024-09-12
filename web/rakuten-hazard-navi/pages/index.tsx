@@ -1,115 +1,144 @@
-import Image from "next/image";
-import localFont from "next/font/local";
+import '@radix-ui/themes/styles.css';
+import GoogleMapsApi from '@/components/GoogleMapsApi';
+import { Theme, Select, Switch } from '@radix-ui/themes';
+import { useState } from 'react';
+import useSWR from 'swr';
+import axios from 'axios';
+import Image from 'next/image';
+import { groupByAddress } from '@/utils/filterUniqueAddresses';
+import { IoIosArrowForward } from 'react-icons/io';
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+const center = {
+  lat: 35.4550426,
+  lon: 139.6312741,
+};
+
+const mapTyep = [
+  { id: '0', title: '地理データ' },
+  { id: '1', title: '洪水浸水想定区域' },
+  { id: '2', title: '浸水継続時間' },
+  { id: '3', title: '家屋倒壊等氾濫想定区域（氾濫流）' },
+  { id: '4', title: '家屋倒壊等氾濫想定区域（河岸侵食）' },
+  { id: '5', title: '内水浸水想定区域' },
+  { id: '6', title: '高潮浸水想定区域' },
+  { id: '7', title: '津波浸水想定' },
+  { id: '8', title: '土砂災害警戒区域（土石流）' },
+  { id: '9', title: '土砂災害警戒区域（急傾斜地の崩壊）' },
+  { id: '10', title: '土砂災害警戒区域（地すべり）' },
+  { id: '11', title: '雪崩危険箇所' },
+];
 
 export default function Home() {
-  return (
-    <div
-      className={`${geistSans.variable} ${geistMono.variable} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
-    >
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              pages/index.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [selectedMapType, setSelectedMapType] = useState<string>('0');
+  const [isExitFlag, setIsExitFlag] = useState(true);
+  const handleValueChange = (value: string) => {
+    setSelectedMapType(value); // 文字列として状態を更新
+  };
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const { data: tmpHazardmapData, isLoading: hazaradmapDataLoading } = useSWR(
+    `/api/hazardmapApi/${center.lat}/${center.lon}/${parseInt(selectedMapType, 10)}`,
+    axios
+  );
+
+  const hazardmapData = tmpHazardmapData?.data;
+
+  const overlayBounds = [
+    hazardmapData?.bottom_left?.lon,
+    hazardmapData?.bottom_left?.lat,
+    hazardmapData?.top_right?.lon,
+    hazardmapData?.top_right?.lat,
+  ];
+
+  const { data: tmpShelterData, isLoading: shelterDataLoading } = useSWR(
+    `/api/shelterApi/${overlayBounds}`,
+    axios
+  );
+
+  const shelterData = tmpShelterData?.data;
+  const transformedShelterData = groupByAddress(shelterData);
+
+  return (
+    <main>
+      <Theme accentColor="teal" hasBackground={true}>
+        <GoogleMapsApi
+          isExitFlag={isExitFlag}
+          hazardmapData={hazardmapData}
+          hazardmapDataLoading={hazaradmapDataLoading}
+          shelterData={transformedShelterData}
+          shelterDataLoading={shelterDataLoading}
+        />
+
+        <div className="mx-4 pt-3">
+          <div className="flex justify-end items-center">
+            <div className="flex items-center gap-3">
+              <Select.Root defaultValue="0" onValueChange={handleValueChange}>
+                <Select.Trigger />
+                <Select.Content>
+                  <Select.Group>
+                    <Select.Label>Map Type</Select.Label>
+                    {mapTyep.map((item) => {
+                      return (
+                        <Select.Item key={item.id} value={item.id}>
+                          {item.title}
+                        </Select.Item>
+                      );
+                    })}
+                  </Select.Group>
+                </Select.Content>
+              </Select.Root>
+              <div className="flex items-center gap-1">
+                <Image
+                  src="/exit.svg"
+                  width={30}
+                  height={30}
+                  alt=""
+                  style={{ objectFit: 'cover' }}
+                  className="mb-1"
+                />
+                <Switch
+                  defaultChecked
+                  onClick={() => setIsExitFlag(!isExitFlag)}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 place-content-center gap-1 mt-2">
+            {transformedShelterData && transformedShelterData.length > 0 ? (
+              transformedShelterData.slice(0, 3).map((item, index) => {
+                return (
+                  <div
+                    key={index}
+                    className="border border-gray-[#D9D9D9] rounded-xl p-2"
+                  >
+                    <div className="flex gap-2 items-center">
+                      <div className="border-r border-[#009891] h-[35px]"></div>
+                      <h3 className="text-sm">{item[2]}</h3>
+                    </div>
+                    <p className="text-xs text-[#9A9A9A] mt-1">{item[3]}</p>
+                  </div>
+                );
+              })
+            ) : (
+              // データがない場合のプレースホルダー
+              <>
+                {[...Array(3)].map((_, index) => (
+                  <div
+                    key={index}
+                    className="w-full h-[94px] bg-gray-200 animate-pulse rounded-xl"
+                  ></div>
+                ))}
+              </>
+            )}
+          </div>
+
+          <div className="mt-4">
+            <button className="bg-[#EDEDED] w-full py-3 rounded-full flex items-center justify-center">
+              <p>さらに表示</p>
+              <IoIosArrowForward />
+            </button>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </Theme>
+    </main>
   );
 }
