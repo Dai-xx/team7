@@ -8,11 +8,6 @@ import Image from 'next/image';
 import { groupByAddress } from '@/utils/filterUniqueAddresses';
 import { IoIosArrowForward } from 'react-icons/io';
 
-const center = {
-  lat: 35.4550426,
-  lon: 139.6312741,
-};
-
 const mapTyep = [
   { id: '0', title: '地理データ' },
   { id: '1', title: '洪水浸水想定区域' },
@@ -29,6 +24,11 @@ const mapTyep = [
 ];
 
 export default function Home() {
+  const center = {
+    lat: 35.4550426,
+    lon: 139.6312741,
+  };
+
   const [selectedMapType, setSelectedMapType] = useState<string>('0');
   const [isExitFlag, setIsExitFlag] = useState(true);
   const handleValueChange = (value: string) => {
@@ -66,6 +66,7 @@ export default function Home() {
           hazardmapDataLoading={hazaradmapDataLoading}
           shelterData={transformedShelterData}
           shelterDataLoading={shelterDataLoading}
+          center={center}
         />
 
         <div className="mx-4 pt-3">

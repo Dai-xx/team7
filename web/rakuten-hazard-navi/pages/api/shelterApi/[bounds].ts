@@ -9,7 +9,7 @@ export default async function handler(
 
   // Flask APIのエンドポイント
   // const flaskApiUrl = `https://shelter-13ps.onrender.com/api/shelter/35.38904996691165/139.5703125/35.4606699514953/139.658203125`;
-  const flaskApiUrl = `https://shelter-13ps.onrender.com/api/shelter/35.38904996691165/139.5703125/35.4606699514953/139.658203125`;
+  const flaskApiUrl = `https://shelter-13ps.onrender.com/api/shelter/35.38904996691165/139.5703125/35.4606699514953/139.658203125/35.4550426/139.6312741`;
 
   try {
     // axiosでFlask APIを呼び出す

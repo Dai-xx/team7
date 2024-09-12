@@ -20,10 +20,14 @@ import Image from 'next/image';
 
 type Props = {
   isExitFlag: boolean;
-  hazardmapData: any;
+  hazardmapData: any[];
   hazardmapDataLoading: boolean;
-  shelterData: any;
+  shelterData: any[];
   shelterDataLoading: boolean;
+  center: {
+    lat: number;
+    lon: number;
+  };
 };
 
 const GoogleMapsApi: FC<Props> = ({
@@ -32,9 +36,11 @@ const GoogleMapsApi: FC<Props> = ({
   hazardmapDataLoading,
   shelterData,
   shelterDataLoading,
+  center,
 }) => {
   const map = useMap();
   const apiIsLoaded = useApiIsLoaded();
+  console.log('center', center);
 
   // const { data: tmpHazardmapData, isLoading } = useSWR(
   //   `/api/hazardmapApi/${lat}/${lon}/${mapType}`,
@@ -75,9 +81,11 @@ const GoogleMapsApi: FC<Props> = ({
 
   // 中心をセット
   const currentPosition = {
-    lat: (hazardmapData?.bottom_left?.lat + hazardmapData?.top_right?.lat) / 2,
-    lng: (hazardmapData?.bottom_left?.lon + hazardmapData?.top_right?.lon) / 2,
+    lat: center?.lat,
+    lng: center?.lon,
   };
+
+  console.log('lng', center?.lon);
 
   // 制限エリアをセット
   const bounds = {
