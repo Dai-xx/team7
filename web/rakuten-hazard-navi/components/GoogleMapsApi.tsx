@@ -65,11 +65,12 @@ const GoogleMapsApi: FC<Props> = ({
     ? `data:image/png;base64,${hazardmapData.image}`
     : '';
 
-  const overlayBounds = [
-    hazardmapData?.bottom_left?.lon,
-    hazardmapData?.bottom_left?.lat,
-    hazardmapData?.top_right?.lon,
-    hazardmapData?.top_right?.lat,
+  // GoogleMapsApiコンポーネント内
+  const overlayBounds: [number, number, number, number] = [
+    hazardmapData?.bottom_left?.lon ?? 0,
+    hazardmapData?.bottom_left?.lat ?? 0,
+    hazardmapData?.top_right?.lon ?? 0,
+    hazardmapData?.top_right?.lat ?? 0,
   ];
 
   const { layers, deck } = useDeckGlLayers({
