@@ -15,7 +15,7 @@
     "paths": {
       "@/*": ["./*"]
     },
-    "suppressImplicitAnyIndexErrors": true,
+    "noEmitOnError": false,
     "noImplicitAny": false
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
