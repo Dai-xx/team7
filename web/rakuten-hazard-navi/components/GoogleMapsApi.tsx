@@ -115,30 +115,30 @@ const GoogleMapsApi: FC<Props> = ({
         </div>
       </div>
     );
-  if (hazardmapData?.status === 404)
-    return (
-      <div className="h-[65vh] w-screen bg-gray-300 flex justify-center items-center">
-        <div>
-          <div className="w-full flex justify-center">
-            <Image
-              src="/undraw_faq_re_31cw.svg"
-              width={200}
-              height={200}
-              alt=""
-              style={{ objectFit: 'cover' }}
-            />
-          </div>
-          <Callout.Root>
-            <Callout.Icon>
-              <InfoCircledIcon />
-            </Callout.Icon>
-            <Callout.Text>
-              現在のエリアで該当するデータが存在しません。
-            </Callout.Text>
-          </Callout.Root>
-        </div>
-      </div>
-    );
+  // if (hazardmapData?.status === 404)
+  //   return (
+  //     <div className="h-[65vh] w-screen bg-gray-300 flex justify-center items-center">
+  //       <div>
+  //         <div className="w-full flex justify-center">
+  //           <Image
+  //             src="/undraw_faq_re_31cw.svg"
+  //             width={200}
+  //             height={200}
+  //             alt=""
+  //             style={{ objectFit: 'cover' }}
+  //           />
+  //         </div>
+  //         <Callout.Root>
+  //           <Callout.Icon>
+  //             <InfoCircledIcon />
+  //           </Callout.Icon>
+  //           <Callout.Text>
+  //             現在のエリアで該当するデータが存在しません。
+  //           </Callout.Text>
+  //         </Callout.Root>
+  //       </div>
+  //     </div>
+  //   );
   return (
     <>
       <Map
@@ -161,6 +161,7 @@ const GoogleMapsApi: FC<Props> = ({
                 ref={markerRef}
                 position={transformedData[0]}
                 onClick={() => handleMarkerClick(index)}
+                className={`${index < 3 && 'bg-[#009891]/50 rounded-full p-1'}`}
               >
                 <Image
                   src="/exit.svg"

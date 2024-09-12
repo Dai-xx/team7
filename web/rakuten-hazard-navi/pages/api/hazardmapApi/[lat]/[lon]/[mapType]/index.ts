@@ -8,6 +8,7 @@ export default async function handler(
   const { lat, lon, mapType } = req.query;
 
   // Flask APIのエンドポイント
+  // const flaskApiUrl = `https://hazardmap-9liw.onrender.com/api/hazard/35.4550426/139.6312741/12/0.7/0`;
   const flaskApiUrl = `https://hazardmap-9liw.onrender.com/api/hazard/${lat}/${lon}/12/0.7/${mapType}`;
 
   try {

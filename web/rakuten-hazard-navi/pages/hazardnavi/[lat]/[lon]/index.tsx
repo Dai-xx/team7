@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { groupByAddress } from '@/utils/filterUniqueAddresses';
 import { IoIosArrowForward } from 'react-icons/io';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 
 const mapTyep = [
   { id: '0', title: '地理データ' },
@@ -62,7 +63,9 @@ const Detail = () => {
   };
 
   const { data: tmpHazardmapData, isLoading: hazaradmapDataLoading } = useSWR(
-    `/api/hazardmapApi/${center.lat}/${center.lon}/${parseInt(selectedMapType, 10)}`,
+    lat && lon && selectedMapType
+      ? `/api/hazardmapApi/${center.lat}/${center.lon}/${parseInt(selectedMapType, 10)}`
+      : null,
     axios
   );
 
@@ -72,7 +75,12 @@ const Detail = () => {
   }
 
   const { data: tmpShelterData, isLoading: shelterDataLoading } = useSWR(
-    `/api/shelterApi?lat1=${hazardmapData?.bottom_left?.lat}&lon1=${hazardmapData?.bottom_left?.lon}&lat2=${hazardmapData?.top_right?.lat}&lon2=${hazardmapData?.top_right?.lon}&lat3=${center.lat}&lon3=${center.lon}`,
+    hazardmapData?.bottom_left?.lat &&
+      hazardmapData?.bottom_left?.lon &&
+      hazardmapData?.top_right?.lat &&
+      hazardmapData?.top_right?.lon
+      ? `/api/shelterApi?lat1=${hazardmapData.bottom_left.lat}&lon1=${hazardmapData.bottom_left.lon}&lat2=${hazardmapData.top_right.lat}&lon2=${hazardmapData.top_right.lon}&lat3=${center.lat}&lon3=${center.lon}`
+      : null, // パラメータが不正の場合にはリクエストを送信しない
     axios
   );
 
@@ -134,6 +142,7 @@ const Detail = () => {
               />
             </div>
           </div>
+          <h3 className="text-xs">近くの避難所：</h3>
           <div className="grid grid-cols-3 place-content-center gap-1 mt-2">
             {transformedShelterData && transformedShelterData.length > 0 ? (
               transformedShelterData.slice(0, 3).map((item, index) => {
@@ -164,10 +173,14 @@ const Detail = () => {
           </div>
 
           <div className="mt-4">
-            <button className="bg-[#EDEDED] w-full py-3 rounded-full flex items-center justify-center">
-              <p>さらに表示</p>
-              <IoIosArrowForward />
-            </button>
+            <Link
+              href={`/viewMore/${hazardmapData?.bottom_left?.lat}/${hazardmapData?.bottom_left?.lon}/${hazardmapData?.top_right?.lat}/${hazardmapData?.top_right?.lon}/${center.lat}/${center.lon}`}
+            >
+              <button className="bg-[#EDEDED] w-full py-3 rounded-full flex items-center justify-center">
+                <p>さらに表示</p>
+                <IoIosArrowForward />
+              </button>
+            </Link>
           </div>
         </div>
       </Theme>
