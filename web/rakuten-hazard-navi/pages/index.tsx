@@ -35,13 +35,6 @@ type HazardMapData = {
   top_right: Coordinates;
 };
 
-type Shelter = {
-  lat: number;
-  lon: number;
-  name: string;
-  address: string;
-};
-
 export default function Home() {
   const center = {
     lat: 35.4550426,
@@ -73,7 +66,7 @@ export default function Home() {
     data: shelterData,
     error: shelterDataError,
     isLoading: shelterDataLoading,
-  } = useSWR<Shelter[]>(
+  } = useSWR<[number, number, string, string][]>(
     `/api/shelterApi?lat1=${hazardmapData?.bottom_left?.lat}&lon1=${hazardmapData?.bottom_left?.lon}&lat2=${hazardmapData?.top_right?.lat}&lon2=${hazardmapData?.top_right?.lon}&lat3=${center.lat}&lon3=${center.lon}`,
     axios
   );

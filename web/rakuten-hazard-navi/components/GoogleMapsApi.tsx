@@ -27,18 +27,11 @@ type HazardMapData = {
   top_right: Coordinates;
 };
 
-type Shelter = {
-  lat: number;
-  lon: number;
-  name: string;
-  address: string;
-};
-
 type Props = {
   isExitFlag: boolean;
   hazardmapData: HazardMapData;
   hazardmapDataLoading: boolean;
-  shelterData: Shelter[];
+  shelterData: [number, number, string, string][];
   shelterDataLoading: boolean;
   center: {
     lat: number;
@@ -177,12 +170,13 @@ const GoogleMapsApi: FC<Props> = ({
       {isExitFlag &&
         shelterData?.map((item, index: number) => {
           const transformedData = transformArray(item);
+          const position = transformedData[0] as { lat: number; lng: number }; // 型を明示
           return (
             <>
               <AdvancedMarker
                 key={index}
                 ref={markerRef}
-                position={transformedData[0]}
+                position={position}
                 onClick={() => handleMarkerClick(index)}
               >
                 <Image
