@@ -35,7 +35,24 @@ export default function Home() {
     setSelectedMapType(value); // 文字列として状態を更新
   };
 
-  const { data: tmpShelterData, isLoading } = useSWR(`/api/shelterApi`, axios);
+  const { data: tmpHazardmapData, isLoading: hazaradmapDataLoading } = useSWR(
+    `/api/hazardmapApi/${center.lat}/${center.lon}/${parseInt(selectedMapType, 10)}`,
+    axios
+  );
+
+  const hazardmapData = tmpHazardmapData?.data;
+
+  const overlayBounds = [
+    hazardmapData?.bottom_left?.lon,
+    hazardmapData?.bottom_left?.lat,
+    hazardmapData?.top_right?.lon,
+    hazardmapData?.top_right?.lat,
+  ];
+
+  const { data: tmpShelterData, isLoading: shelterDataLoading } = useSWR(
+    `/api/shelterApi/${overlayBounds}`,
+    axios
+  );
 
   const shelterData = tmpShelterData?.data;
   const transformedShelterData = groupByAddress(shelterData);
@@ -44,12 +61,11 @@ export default function Home() {
     <main>
       <Theme accentColor="teal" hasBackground={true}>
         <GoogleMapsApi
-          lat={center.lat}
-          lon={center.lon}
-          mapType={parseInt(selectedMapType, 10)}
           isExitFlag={isExitFlag}
+          hazardmapData={hazardmapData}
+          hazardmapDataLoading={hazaradmapDataLoading}
           shelterData={transformedShelterData}
-          shelterIsLoading={isLoading}
+          shelterDataLoading={shelterDataLoading}
         />
 
         <div className="mx-4 pt-3">

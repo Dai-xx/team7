@@ -17,34 +17,31 @@ import { InfoCircledIcon } from '@radix-ui/react-icons';
 import Loading from './Loading';
 import { transformArray } from '@/utils/transformArray';
 import Image from 'next/image';
-import { groupByAddress } from '@/utils/filterUniqueAddresses';
 
 type Props = {
-  lat: number;
-  lon: number;
-  mapType: number;
   isExitFlag: boolean;
+  hazardmapData: any;
+  hazardmapDataLoading: boolean;
   shelterData: any;
-  shelterIsLoading: any;
+  shelterDataLoading: boolean;
 };
 
 const GoogleMapsApi: FC<Props> = ({
-  lat,
-  lon,
-  mapType,
   isExitFlag,
+  hazardmapData,
+  hazardmapDataLoading,
   shelterData,
-  shelterIsLoading,
+  shelterDataLoading,
 }) => {
   const map = useMap();
   const apiIsLoaded = useApiIsLoaded();
 
-  const { data: tmpHazardmapData, isLoading } = useSWR(
-    `/api/hazardmapApi/${lat}/${lon}/${mapType}`,
-    axios
-  );
+  // const { data: tmpHazardmapData, isLoading } = useSWR(
+  //   `/api/hazardmapApi/${lat}/${lon}/${mapType}`,
+  //   axios
+  // );
 
-  const hazardmapData = tmpHazardmapData?.data;
+  // const hazardmapData = tmpHazardmapData?.data;
 
   // オーバーレイをセット
   const overlayImage = hazardmapData?.image
@@ -115,7 +112,7 @@ const GoogleMapsApi: FC<Props> = ({
     setSelectedMarker(null);
   };
 
-  if (!apiIsLoaded || isLoading || shelterIsLoading)
+  if (!apiIsLoaded || hazardmapDataLoading || shelterDataLoading)
     return (
       <div className="h-[65vh] w-screen  bg-white relative">
         <div className="absolute top-1/2 left-1/2 -translate-x-[50%] -translate-y-[50%]">

@@ -5,9 +5,10 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  // const { bounds } = req.query;
+  const { bounds } = req.query;
 
   // Flask APIのエンドポイント
+  // const flaskApiUrl = `https://shelter-13ps.onrender.com/api/shelter/35.38904996691165/139.5703125/35.4606699514953/139.658203125`;
   const flaskApiUrl = `https://shelter-13ps.onrender.com/api/shelter/35.38904996691165/139.5703125/35.4606699514953/139.658203125`;
 
   try {
