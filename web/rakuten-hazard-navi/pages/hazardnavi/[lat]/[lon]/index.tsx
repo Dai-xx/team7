@@ -8,8 +8,8 @@ import Image from 'next/image';
 import { groupByAddress } from '@/utils/filterUniqueAddresses';
 import { IoIosArrowForward } from 'react-icons/io';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
 import { useMap } from '@vis.gl/react-google-maps';
+import ShelterDialog from '@/components/ShelterDialog';
 
 const mapType = [
   { id: '0', title: '地理データ', legend: 'null' },
@@ -188,7 +188,9 @@ const Detail = () => {
     }
   };
 
-  console.log('');
+  const [open, setOpen] = useState(false);
+
+  console.log('open', open);
 
   return (
     <main>
@@ -281,17 +283,28 @@ const Detail = () => {
           </div>
 
           <div className="mt-4">
-            <Link
+            {/* <Link
               href={`/viewMore/${hazardmapData?.bottom_left?.lat}/${hazardmapData?.bottom_left?.lon}/${hazardmapData?.top_right?.lat}/${hazardmapData?.top_right?.lon}/${center.lat}/${center.lon}`}
+            > */}
+            <button
+              onClick={() => setOpen(true)}
+              className="bg-[#EDEDED] w-full py-3 rounded-full flex items-center justify-center"
             >
-              <button className="bg-[#EDEDED] w-full py-3 rounded-full flex items-center justify-center">
-                <p>さらに表示</p>
-                <IoIosArrowForward />
-              </button>
-            </Link>
+              <p>さらに表示</p>
+              <IoIosArrowForward />
+            </button>
+
+            {/* </Link> */}
           </div>
         </div>
       </Theme>
+      <ShelterDialog
+        open={open}
+        setOpen={setOpen}
+        selectedCard={selectedCard}
+        data={shelterData}
+        handleMarkerClick={handleMarkerClick}
+      />
     </main>
   );
 };
