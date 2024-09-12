@@ -9,7 +9,6 @@ interface UseDeckGlLayersProps {
 }
 
 export const useDeckGlLayers = ({ bounds, image }: UseDeckGlLayersProps) => {
-  console.log('image', image);
   const bitmapLayer = useMemo(
     () =>
       new BitmapLayer({
@@ -21,7 +20,10 @@ export const useDeckGlLayers = ({ bounds, image }: UseDeckGlLayersProps) => {
   );
 
   const layers = useMemo(() => [bitmapLayer], [bitmapLayer]);
-  const deck = useMemo(() => new GoogleMapsOverlay({ interleaved: true }), []);
+  const deck = useMemo(
+    () => new GoogleMapsOverlay({ interleaved: true }),
+    [layers]
+  );
 
   return { layers, deck };
 };

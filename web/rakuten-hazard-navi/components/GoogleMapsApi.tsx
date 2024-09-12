@@ -6,38 +6,45 @@ import {
   useApiIsLoaded,
   useMap,
 } from '@vis.gl/react-google-maps';
-import { useEffect } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useInfoWindow } from '@/hooks/useInfoWindow';
 import { useDeckGlLayers } from '@/hooks/useDeckGlLayers';
 import useSWR from 'swr';
 import axios from 'axios';
 import { hazardmapApiMock } from '@/mocks/hazardmapApiMoack';
+import { Callout } from '@radix-ui/themes';
+import { InfoCircledIcon } from '@radix-ui/react-icons';
+import Loading from './Loading';
+import { transformArray } from '@/utils/transformArray';
+import Image from 'next/image';
+import { groupByAddress } from '@/utils/filterUniqueAddresses';
 
 type Props = {
   lat: number;
   lon: number;
   mapType: number;
+  isExitFlag: boolean;
+  shelterData: any;
+  shelterIsLoading: any;
 };
 
-const GoogleMapsApi = ({ lat, lon, mapType }) => {
+const GoogleMapsApi: FC<Props> = ({
+  lat,
+  lon,
+  mapType,
+  isExitFlag,
+  shelterData,
+  shelterIsLoading,
+}) => {
   const map = useMap();
   const apiIsLoaded = useApiIsLoaded();
 
-  // const center = {
-  //   lat: 35.4550426,
-  //   lon: 139.6312741,
-  // };
-
-  // const mapType = 11;
-  const { data: tmpHzardmapData, isLoading } = useSWR(
+  const { data: tmpHazardmapData, isLoading } = useSWR(
     `/api/hazardmapApi/${lat}/${lon}/${mapType}`,
     axios
   );
 
-  // const hazardmapData = hazardmapApiMock;
-  const hazardmapData = tmpHzardmapData?.data;
-  // console.log('tmpHzardmapData', tmpHzardmapData);
-  console.log('err', hazardmapData?.status);
+  const hazardmapData = tmpHazardmapData?.data;
 
   // オーバーレイをセット
   const overlayImage = hazardmapData?.image
@@ -50,25 +57,24 @@ const GoogleMapsApi = ({ lat, lon, mapType }) => {
     hazardmapData?.top_right?.lon,
     hazardmapData?.top_right?.lat,
   ];
+
   const { layers, deck } = useDeckGlLayers({
     bounds: overlayBounds,
     image: overlayImage,
   });
 
   useEffect(() => {
-    console.log('Map updated or hazardmapData updated:', { map, layers });
     if (map) {
       deck.setMap(map);
     }
     return () => {
       deck.setMap(null);
     };
-  }, [map, tmpHzardmapData]);
+  }, [map]);
 
   useEffect(() => {
-    console.log('Layers set:', layers);
     deck.setProps({ layers });
-  }, [layers, tmpHzardmapData]);
+  }, [layers]);
 
   // 中心をセット
   const currentPosition = {
@@ -98,48 +104,97 @@ const GoogleMapsApi = ({ lat, lon, mapType }) => {
   }, [map]);
 
   // マーカーのツールチップハンドリングフック
-  const { markerRef, marker, infoWindowShown, handleMarkerClick, handleClose } =
-    useInfoWindow();
+  const { markerRef, marker, infoWindowShown } = useInfoWindow();
+  const [selectedMarker, setSelectedMarker] = useState<number | null>(null);
 
-  if (!apiIsLoaded) {
-    return <div>Loading...map</div>;
-  }
-  if (isLoading) return <div>loading...</div>;
-  if (hazardmapData.status === 404) return <div>Not Found</div>;
+  const handleMarkerClick = (index: number) => {
+    setSelectedMarker(index);
+  };
+
+  const handleClose = () => {
+    setSelectedMarker(null);
+  };
+
+  if (!apiIsLoaded || isLoading || shelterIsLoading)
+    return (
+      <div className="h-[65vh] w-screen  bg-white relative">
+        <div className="absolute top-1/2 left-1/2 -translate-x-[50%] -translate-y-[50%]">
+          <Loading />
+        </div>
+      </div>
+    );
+  if (hazardmapData?.status === 404)
+    return (
+      <div className="h-[65vh] w-screen bg-gray-300 flex justify-center items-center">
+        <div>
+          <div className="w-full flex justify-center">
+            <Image
+              src="/undraw_faq_re_31cw.svg"
+              width={200}
+              height={200}
+              alt=""
+              style={{ objectFit: 'cover' }}
+            />
+          </div>
+          <Callout.Root>
+            <Callout.Icon>
+              <InfoCircledIcon />
+            </Callout.Icon>
+            <Callout.Text>
+              現在のエリアで該当するデータが存在しません。
+            </Callout.Text>
+          </Callout.Root>
+        </div>
+      </div>
+    );
   return (
     <>
       <Map
-        style={{ width: '100vw', height: '100vh' }}
+        style={{ width: '100vw', height: '65vh' }}
         defaultCenter={currentPosition}
         defaultZoom={12}
         gestureHandling={'greedy'}
         disableDefaultUI={true}
         mapId="c0ad196a416ee5f8"
       />
+
       <Marker position={currentPosition} />
-      {/* <Marker position={{ lat: 35.675069, lng: 139.763328 }} /> */}
-      {/* <Marker position={{ lat: 35.694099, lng: 139.737358 }} /> */}
-      <AdvancedMarker
-        ref={markerRef}
-        position={{ lat: 35.694099, lng: 139.737358 }}
-        onClick={handleMarkerClick}
-      >
-        <div className="bg-blue-700 w-[30px] h-[30px] rounded-full"></div>
-      </AdvancedMarker>
-      {infoWindowShown && (
-        <InfoWindow
-          headerContent={<h3 className="text-black">◯✕体育館</h3>}
-          anchor={marker}
-          onClose={handleClose}
-        >
-          <div className="p-2 bg-white text-black">
-            <h1>
-              テキストテキストテキストテキストテキストテキストテキストテキスト
-              テキストテキストテキスト
-            </h1>
-          </div>
-        </InfoWindow>
-      )}
+      {isExitFlag &&
+        shelterData?.map((item: any, index: number) => {
+          const transformedData = transformArray(item);
+          return (
+            <>
+              <AdvancedMarker
+                key={index}
+                ref={markerRef}
+                position={transformedData[0]}
+                onClick={() => handleMarkerClick(index)}
+              >
+                <Image
+                  src="/exit.svg"
+                  width={50}
+                  height={50}
+                  alt=""
+                  style={{ objectFit: 'cover' }}
+                />
+              </AdvancedMarker>
+              {selectedMarker === index && infoWindowShown && (
+                <InfoWindow
+                  headerContent={<h3 className="text-black">◯✕体育館</h3>}
+                  anchor={marker}
+                  onClose={handleClose}
+                >
+                  <div className="p-2 bg-black text-black">
+                    <h1>
+                      テキストテキストテキストテキストテキストテキストテキストテキスト
+                      テキストテキストテキスト
+                    </h1>
+                  </div>
+                </InfoWindow>
+              )}
+            </>
+          );
+        })}
     </>
   );
 };
