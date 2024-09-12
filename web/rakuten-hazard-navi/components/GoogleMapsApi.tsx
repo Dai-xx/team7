@@ -20,9 +20,9 @@ import Image from 'next/image';
 
 type Props = {
   isExitFlag: boolean;
-  hazardmapData: any[];
+  hazardmapData: any;
   hazardmapDataLoading: boolean;
-  shelterData: any[];
+  shelterData: any;
   shelterDataLoading: boolean;
   center: {
     lat: number;
