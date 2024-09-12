@@ -187,8 +187,8 @@ const GoogleMapsApi: FC<Props> = ({
               >
                 <Image
                   src="/exit.svg"
-                  width={50}
-                  height={50}
+                  width={25}
+                  height={25}
                   alt=""
                   style={{ objectFit: 'cover' }}
                 />
