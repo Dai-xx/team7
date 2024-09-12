@@ -40,14 +40,6 @@ const GoogleMapsApi: FC<Props> = ({
 }) => {
   const map = useMap();
   const apiIsLoaded = useApiIsLoaded();
-  // console.log('center', center);
-
-  // const { data: tmpHazardmapData, isLoading } = useSWR(
-  //   `/api/hazardmapApi/${lat}/${lon}/${mapType}`,
-  //   axios
-  // );
-
-  // const hazardmapData = tmpHazardmapData?.data;
 
   // オーバーレイをセット
   const overlayImage = hazardmapData?.image
@@ -85,8 +77,6 @@ const GoogleMapsApi: FC<Props> = ({
     lng: center?.lon,
   };
 
-  // console.log('lng', center?.lon);
-
   // 制限エリアをセット
   const bounds = {
     north: hazardmapData?.top_right?.lat,
@@ -109,7 +99,7 @@ const GoogleMapsApi: FC<Props> = ({
   }, [map]);
 
   // マーカーのツールチップハンドリングフック
-  const { markerRef, marker, infoWindowShown } = useInfoWindow();
+  const { markerRef, marker } = useInfoWindow();
   const [selectedMarker, setSelectedMarker] = useState<number | null>(null);
 
   const handleMarkerClick = (index: number) => {

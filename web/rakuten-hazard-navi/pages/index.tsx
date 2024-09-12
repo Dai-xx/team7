@@ -7,7 +7,6 @@ import axios from 'axios';
 import Image from 'next/image';
 import { groupByAddress } from '@/utils/filterUniqueAddresses';
 import { IoIosArrowForward } from 'react-icons/io';
-import qs from 'qs';
 
 const mapTyep = [
   { id: '0', title: '地理データ' },
@@ -45,25 +44,6 @@ export default function Home() {
   if (selectedMapType === '0' && hazardmapData) {
     hazardmapData.image = null;
   }
-
-  const overlayBounds = [
-    hazardmapData?.bottom_left?.lon,
-    hazardmapData?.bottom_left?.lat,
-    hazardmapData?.top_right?.lon,
-    hazardmapData?.top_right?.lat,
-  ];
-  console.log('overlayBounds', overlayBounds);
-
-  const bounds = {
-    bottom_left: {
-      lon: hazardmapData?.bottom_left?.lon,
-      lat: hazardmapData?.bottom_left?.lat,
-    },
-    top_right: {
-      lon: hazardmapData?.top_right?.lon,
-      lat: hazardmapData?.top_right?.lat,
-    },
-  };
 
   const { data: tmpShelterData, isLoading: shelterDataLoading } = useSWR(
     `/api/shelterApi?lat1=${hazardmapData?.bottom_left?.lat}&lon1=${hazardmapData?.bottom_left?.lon}&lat2=${hazardmapData?.top_right?.lat}&lon2=${hazardmapData?.top_right?.lon}&lat3=${center.lat}&lon3=${center.lon}`,
