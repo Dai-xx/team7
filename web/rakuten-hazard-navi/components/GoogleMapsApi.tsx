@@ -139,8 +139,21 @@ const GoogleMapsApi: FC<Props> = ({
   //       </div>
   //     </div>
   //   );
+  console.log('legend', hazardmapData.legend);
   return (
     <>
+      {hazardmapData.legend ? <div></div> : <div></div>}
+      {hazardmapData.legend != 'null' && (
+        <div className=" w-[150px] aspect-square absolute z-10 right-0 m-4">
+          <Image
+            src={hazardmapData.legend}
+            fill
+            alt=""
+            style={{ objectFit: 'cover' }}
+            className=" opacity-70"
+          />
+        </div>
+      )}
       <Map
         style={{ width: '100vw', height: '65vh' }}
         defaultCenter={currentPosition}
@@ -149,7 +162,6 @@ const GoogleMapsApi: FC<Props> = ({
         disableDefaultUI={true}
         mapId="c0ad196a416ee5f8"
       />
-
       <Marker position={currentPosition} />
       {isExitFlag &&
         shelterData?.map((item: number[], index: number) => {

@@ -10,19 +10,43 @@ import { IoIosArrowForward } from 'react-icons/io';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 
-const mapTyep = [
-  { id: '0', title: '地理データ' },
-  { id: '1', title: '洪水浸水想定区域' },
-  { id: '2', title: '浸水継続時間' },
-  { id: '3', title: '家屋倒壊等氾濫想定区域（氾濫流）' },
-  { id: '4', title: '家屋倒壊等氾濫想定区域（河岸侵食）' },
-  { id: '5', title: '内水浸水想定区域' },
-  { id: '6', title: '高潮浸水想定区域' },
-  { id: '7', title: '津波浸水想定' },
-  { id: '8', title: '土砂災害警戒区域（土石流）' },
-  { id: '9', title: '土砂災害警戒区域（急傾斜地の崩壊）' },
-  { id: '10', title: '土砂災害警戒区域（地すべり）' },
-  { id: '11', title: '雪崩危険箇所' },
+const mapType = [
+  { id: '0', title: '地理データ', legend: 'null' },
+  { id: '1', title: '洪水浸水想定区域', legend: '/legend/kouzui_shinsui.png' },
+  { id: '2', title: '浸水継続時間', legend: '/legend/shinsui_keizoku.png' },
+  {
+    id: '3',
+    title: '家屋倒壊等氾濫想定区域（氾濫流）',
+    legend: 'null',
+  },
+  {
+    id: '4',
+    title: '家屋倒壊等氾濫想定区域（河岸侵食）',
+    legend: 'null',
+  },
+  { id: '5', title: '内水浸水想定区域', legend: '/legend/naisui_shinsui.png' },
+  {
+    id: '6',
+    title: '高潮浸水想定区域',
+    legend: '/legend/takashio_shinsui.png',
+  },
+  { id: '7', title: '津波浸水想定', legend: '/legend/tsunami_shinsui.png' },
+  {
+    id: '8',
+    title: '土砂災害警戒区域（土石流）',
+    legend: '/legend/dosha_dosekiryu.png',
+  },
+  {
+    id: '9',
+    title: '土砂災害警戒区域（急傾斜地の崩壊）',
+    legend: '/legend/dosha_kyukeisha.png',
+  },
+  {
+    id: '10',
+    title: '土砂災害警戒区域（地すべり）',
+    legend: '/legend/dosha_jisuberi.png',
+  },
+  { id: '11', title: '雪崩危険箇所', legend: 'null' },
 ];
 
 const Detail = () => {
@@ -136,6 +160,10 @@ const Detail = () => {
   );
 
   const hazardmapData = tmpHazardmapData?.data;
+  const reHazardmapData = {
+    legend: mapType[hazardmapData?.mapType]?.legend,
+    ...hazardmapData,
+  };
   if (selectedMapType === '0' && hazardmapData) {
     hazardmapData.image = null;
   }
@@ -165,7 +193,7 @@ const Detail = () => {
         </header>
         <GoogleMapsApi
           isExitFlag={isExitFlag}
-          hazardmapData={hazardmapData}
+          hazardmapData={reHazardmapData}
           hazardmapDataLoading={hazaradmapDataLoading}
           shelterData={transformedShelterData}
           shelterDataLoading={shelterDataLoading}
@@ -180,7 +208,7 @@ const Detail = () => {
               <Select.Content>
                 <Select.Group>
                   <Select.Label>Map Type</Select.Label>
-                  {mapTyep.map((item) => {
+                  {mapType.map((item) => {
                     return (
                       <Select.Item key={item.id} value={item.id}>
                         {item.title}

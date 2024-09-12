@@ -17,7 +17,7 @@ export default async function handler(
     const data = response.data;
 
     // Next.jsのAPIレスポンスとして返す
-    res.status(200).json(data);
+    res.status(200).json({ mapType: mapType, ...data });
   } catch (error) {
     console.error('Error calling Flask API:', error);
     res.status(500).json({ message: 'Error fetching data from Flask API' });
