@@ -24,7 +24,7 @@ const mapTyep = [
   { id: '11', title: '雪崩危険箇所' },
 ];
 
-export default function Home() {
+const Detail = () => {
   const router = useRouter();
   const [lat, setLat] = useState<number>();
   const [lon, setLon] = useState<number>();
@@ -173,4 +173,5 @@ export default function Home() {
       </Theme>
     </main>
   );
-}
+};
+export default Detail;
