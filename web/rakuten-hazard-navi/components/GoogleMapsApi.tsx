@@ -90,7 +90,7 @@ const GoogleMapsApi: FC<Props> = ({
           latLngBounds: bounds, // 範囲を設定
           strictBounds: true, // ユーザーが範囲外にパンできないようにする
         },
-        zoom: 12, // 初期ズームレベル
+        zoom: 13, // 初期ズームレベル
       });
     }
   }, [map]);
@@ -144,7 +144,7 @@ const GoogleMapsApi: FC<Props> = ({
       <Map
         style={{ width: '100vw', height: '65vh' }}
         defaultCenter={currentPosition}
-        defaultZoom={12}
+        defaultZoom={13}
         gestureHandling={'greedy'}
         disableDefaultUI={true}
         mapId="c0ad196a416ee5f8"

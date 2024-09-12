@@ -9,7 +9,7 @@ export default async function handler(
 
   // Flask APIのエンドポイント
   // const flaskApiUrl = `https://hazardmap-9liw.onrender.com/api/hazard/35.4550426/139.6312741/12/0.7/0`;
-  const flaskApiUrl = `https://hazardmap-9liw.onrender.com/api/hazard/${lat}/${lon}/12/0.7/${mapType}`;
+  const flaskApiUrl = `https://hazardmap-9liw.onrender.com/api/hazard/${lat}/${lon}/13/0.7/${mapType}`;
 
   try {
     // axiosでFlask APIを呼び出す

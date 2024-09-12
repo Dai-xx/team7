@@ -80,7 +80,7 @@ const Detail = () => {
     return { xTile, yTile };
   }
 
-  const { xTile, yTile } = latLonToTile(center.lat, center.lon, 12);
+  const { xTile, yTile } = latLonToTile(center.lat, center.lon, 13);
   const topRight = {
     x: xTile + 1,
     y: yTile - 1,
@@ -125,8 +125,8 @@ const Detail = () => {
     };
   }
 
-  const toRightTileBounds = getTileBounds(topRight.x, topRight.y, 12);
-  const bottomLefttTileBounds = getTileBounds(bottomLeft.x, bottomLeft.y, 12);
+  const toRightTileBounds = getTileBounds(topRight.x, topRight.y, 13);
+  const bottomLefttTileBounds = getTileBounds(bottomLeft.x, bottomLeft.y, 13);
 
   // console.log(tileBounds);
 
