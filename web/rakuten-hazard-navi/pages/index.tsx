@@ -23,6 +23,25 @@ const mapTyep = [
   { id: '11', title: '雪崩危険箇所' },
 ];
 
+type Coordinates = {
+  lat: number;
+  lon: number;
+};
+
+type HazardMapData = {
+  bottom_left: Coordinates;
+  image: string | null;
+  status: number;
+  top_right: Coordinates;
+};
+
+type Shelter = {
+  lat: number;
+  lon: number;
+  name: string;
+  address: string;
+};
+
 export default function Home() {
   const center = {
     lat: 35.4550426,
@@ -31,27 +50,40 @@ export default function Home() {
 
   const [selectedMapType, setSelectedMapType] = useState<string>('0');
   const [isExitFlag, setIsExitFlag] = useState(true);
+
   const handleValueChange = (value: string) => {
-    setSelectedMapType(value); // 文字列として状態を更新
+    setSelectedMapType(value);
   };
 
-  const { data: tmpHazardmapData, isLoading: hazaradmapDataLoading } = useSWR(
+  const {
+    data: hazardmapData,
+    error: hazardmapDataError,
+    isLoading: hazaradmapDataLoading,
+  } = useSWR<HazardMapData>(
     `/api/hazardmapApi/${center.lat}/${center.lon}/${parseInt(selectedMapType, 10)}`,
     axios
   );
 
-  const hazardmapData = tmpHazardmapData?.data;
-  if (selectedMapType === '0' && hazardmapData) {
-    hazardmapData.image = null;
+  // データが取得できなかった場合の処理
+  if (hazardmapDataError) {
+    console.error('Error fetching hazard map data:', hazardmapDataError);
   }
 
-  const { data: tmpShelterData, isLoading: shelterDataLoading } = useSWR(
+  const {
+    data: shelterData,
+    error: shelterDataError,
+    isLoading: shelterDataLoading,
+  } = useSWR<Shelter[]>(
     `/api/shelterApi?lat1=${hazardmapData?.bottom_left?.lat}&lon1=${hazardmapData?.bottom_left?.lon}&lat2=${hazardmapData?.top_right?.lat}&lon2=${hazardmapData?.top_right?.lon}&lat3=${center.lat}&lon3=${center.lon}`,
     axios
   );
 
-  const shelterData = tmpShelterData?.data;
-  const transformedShelterData = groupByAddress(shelterData);
+  // データが取得できなかった場合の処理
+  if (shelterDataError) {
+    console.error('Error fetching shelter data:', shelterDataError);
+  }
+
+  const transformedShelterData = groupByAddress(shelterData || []);
 
   return (
     <main>
@@ -68,7 +100,7 @@ export default function Home() {
         </header>
         <GoogleMapsApi
           isExitFlag={isExitFlag}
-          hazardmapData={hazardmapData}
+          hazardmapData={hazardmapData || ({} as HazardMapData)}
           hazardmapDataLoading={hazaradmapDataLoading}
           shelterData={transformedShelterData}
           shelterDataLoading={shelterDataLoading}
@@ -83,13 +115,11 @@ export default function Home() {
               <Select.Content>
                 <Select.Group>
                   <Select.Label>Map Type</Select.Label>
-                  {mapTyep.map((item) => {
-                    return (
-                      <Select.Item key={item.id} value={item.id}>
-                        {item.title}
-                      </Select.Item>
-                    );
-                  })}
+                  {mapTyep.map((item) => (
+                    <Select.Item key={item.id} value={item.id}>
+                      {item.title}
+                    </Select.Item>
+                  ))}
                 </Select.Group>
               </Select.Content>
             </Select.Root>
@@ -109,9 +139,8 @@ export default function Home() {
             </div>
           </div>
           <div className="grid grid-cols-3 place-content-center gap-1 mt-2">
-            {transformedShelterData && transformedShelterData.length > 0 ? (
-              transformedShelterData.slice(0, 3).map((item, index) => {
-                return (
+            {transformedShelterData.length > 0
+              ? transformedShelterData.slice(0, 3).map((item, index) => (
                   <div
                     key={index}
                     className="border border-gray-[#D9D9D9] rounded-xl p-2"
@@ -122,19 +151,14 @@ export default function Home() {
                     </div>
                     <p className="text-xs text-[#9A9A9A] mt-1">{item[3]}</p>
                   </div>
-                );
-              })
-            ) : (
-              // データがない場合のプレースホルダー
-              <>
-                {[...Array(3)].map((_, index) => (
+                ))
+              : // データがない場合のプレースホルダー
+                [...Array(3)].map((_, index) => (
                   <div
                     key={index}
                     className="w-full h-[94px] bg-gray-200 animate-pulse rounded-xl"
                   ></div>
                 ))}
-              </>
-            )}
           </div>
 
           <div className="mt-4">
