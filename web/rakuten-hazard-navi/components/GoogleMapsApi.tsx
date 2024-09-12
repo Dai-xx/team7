@@ -40,7 +40,7 @@ const GoogleMapsApi: FC<Props> = ({
 }) => {
   const map = useMap();
   const apiIsLoaded = useApiIsLoaded();
-  console.log('center', center);
+  // console.log('center', center);
 
   // const { data: tmpHazardmapData, isLoading } = useSWR(
   //   `/api/hazardmapApi/${lat}/${lon}/${mapType}`,
@@ -85,7 +85,7 @@ const GoogleMapsApi: FC<Props> = ({
     lng: center?.lon,
   };
 
-  console.log('lng', center?.lon);
+  // console.log('lng', center?.lon);
 
   // 制限エリアをセット
   const bounds = {
@@ -165,7 +165,7 @@ const GoogleMapsApi: FC<Props> = ({
 
       <Marker position={currentPosition} />
       {isExitFlag &&
-        shelterData?.map((item: any, index: number) => {
+        shelterData?.map((item: number[], index: number) => {
           const transformedData = transformArray(item);
           return (
             <>
