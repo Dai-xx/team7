@@ -134,7 +134,7 @@ const GoogleMapsApi: FC<Props> = ({
           {hazardmapData.legend != 'null' ? (
             <button
               onClick={() => setLegendIsOpen(false)}
-              className=" w-[350px] aspect-square absolute z-10 right-0 m-4"
+              className=" w-[300px] aspect-square absolute z-10 right-0 m-4"
             >
               <Image
                 src={hazardmapData.legend}
@@ -147,7 +147,7 @@ const GoogleMapsApi: FC<Props> = ({
           ) : (
             <button
               disabled
-              className=" w-[350px] aspect-square absolute z-10 right-0 m-4"
+              className=" w-[300px] aspect-square absolute z-10 right-0 m-4"
             >
               aa
             </button>
