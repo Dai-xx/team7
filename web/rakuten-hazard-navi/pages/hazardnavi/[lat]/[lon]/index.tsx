@@ -302,7 +302,7 @@ const Detail = () => {
         open={open}
         setOpen={setOpen}
         selectedCard={selectedCard}
-        data={shelterData}
+        data={transformedShelterData}
         handleMarkerClick={handleMarkerClick}
       />
     </main>
