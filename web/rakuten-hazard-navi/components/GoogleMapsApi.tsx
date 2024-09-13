@@ -9,11 +9,10 @@ import {
 import { FC, useEffect, useState } from 'react';
 import { useInfoWindow } from '@/hooks/useInfoWindow';
 import { useDeckGlLayers } from '@/hooks/useDeckGlLayers';
-import { Callout } from '@radix-ui/themes';
-import { InfoCircledIcon } from '@radix-ui/react-icons';
 import Loading from './Loading';
 import { transformArray } from '@/utils/transformArray';
 import Image from 'next/image';
+import { BsFillInfoCircleFill } from 'react-icons/bs';
 
 type Props = {
   isExitFlag: boolean;
@@ -39,6 +38,8 @@ const GoogleMapsApi: FC<Props> = ({
 }) => {
   const map = useMap();
   const apiIsLoaded = useApiIsLoaded();
+
+  const [legendIsOpen, setLegendIsOpen] = useState(false);
 
   // オーバーレイをセット
   const overlayImage = hazardmapData?.image
@@ -128,18 +129,52 @@ const GoogleMapsApi: FC<Props> = ({
   console.log('legend', hazardmapData.legend);
   return (
     <>
-      {hazardmapData.legend ? <div></div> : <div></div>}
-      {hazardmapData.legend != 'null' && (
-        <div className=" w-[150px] aspect-square absolute z-10 right-0 m-4">
-          <Image
-            src={hazardmapData.legend}
-            fill
-            alt=""
-            style={{ objectFit: 'cover' }}
-            className=" opacity-70"
-          />
-        </div>
+      {legendIsOpen ? (
+        <>
+          {hazardmapData.legend != 'null' ? (
+            <button
+              onClick={() => setLegendIsOpen(false)}
+              className=" w-[350px] aspect-square absolute z-10 right-0 m-4"
+            >
+              <Image
+                src={hazardmapData.legend}
+                fill
+                alt=""
+                style={{ objectFit: 'cover' }}
+                className=" opacity-70"
+              />
+            </button>
+          ) : (
+            <button
+              disabled
+              className=" w-[350px] aspect-square absolute z-10 right-0 m-4"
+            >
+              aa
+            </button>
+          )}
+        </>
+      ) : (
+        <>
+          {hazardmapData.legend != 'null' ? (
+            <button
+              onClick={() => setLegendIsOpen(true)}
+              className=" aspect-square absolute z-10 right-0 m-4"
+            >
+              <BsFillInfoCircleFill color="gray" size={40} />
+            </button>
+          ) : (
+            <button
+              disabled
+              className=" aspect-square absolute z-10 right-0 m-4"
+            >
+              <BsFillInfoCircleFill color="gray" size={40} />
+            </button>
+          )}
+        </>
       )}
+      {/* {hazardmapData.legend != 'null' && (
+        
+      )} */}
       <Map
         style={{ width: '100vw', height: '65vh' }}
         defaultCenter={currentPosition}
