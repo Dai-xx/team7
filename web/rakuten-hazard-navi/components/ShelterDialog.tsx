@@ -42,7 +42,7 @@ const ShelterDialog: FC<Props> = ({
                 style={{
                   transform: styles.transform,
                 }}
-                className="data-[state=open]:animate-contentShow fixed top-[20vh] pb-[100px] left-[50%] h-[85vh] w-[90vw] max-w-[450px] translate-x-[-50%] rounded-3xl bg-white p-[25px] shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none"
+                className="data-[state=open]:animate-contentShow fixed top-[20vh] pb-[100px] left-[50%] h-[85vh] w-[100vw] max-w-[450px] translate-x-[-50%] rounded-3xl bg-white p-[25px] shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none"
               >
                 <div className="flex justify-between items-center mb-1">
                   <Dialog.Title className="text-mauve12 m-0 font-medium text-[#171717]">
