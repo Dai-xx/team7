@@ -169,9 +169,9 @@ const Detail = () => {
     legend: mapType[hazardmapData?.mapType]?.legend,
     ...hazardmapData,
   };
-  if (selectedMapType === '0' && hazardmapData) {
-    hazardmapData.image = null;
-  }
+  // if (selectedMapType === '0' && hazardmapData) {
+  //   hazardmapData.image = null;
+  // }
 
   const shouldShelterFetch =
     toRightTileBounds?.top_right?.lat &&
