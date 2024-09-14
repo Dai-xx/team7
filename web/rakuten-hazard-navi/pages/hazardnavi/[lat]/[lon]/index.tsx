@@ -155,8 +155,12 @@ const Detail = () => {
 
   // console.log(tileBounds);
 
+  const shouldHazardFetch = center && center.lat && center.lon;
+
   const { data: tmpHazardmapData, isLoading: hazaradmapDataLoading } = useSWR(
-    `/api/hazardmapApi/${center.lat}/${center.lon}/${parseInt(selectedMapType, 10)}`,
+    shouldHazardFetch
+      ? `/api/hazardmapApi/${center.lat}/${center.lon}/${parseInt(selectedMapType, 10)}`
+      : null,
     axios
   );
 
@@ -169,8 +173,18 @@ const Detail = () => {
     hazardmapData.image = null;
   }
 
+  const shouldShelterFetch =
+    toRightTileBounds?.top_right?.lat &&
+    toRightTileBounds?.top_right?.lon &&
+    bottomLefttTileBounds?.bottom_left?.lat &&
+    bottomLefttTileBounds?.bottom_left?.lon &&
+    center?.lat &&
+    center?.lon;
+
   const { data: tmpShelterData, isLoading: shelterDataLoading } = useSWR(
-    `/api/shelterApi?lat1=${toRightTileBounds.top_right.lat}&lon1=${toRightTileBounds.top_right.lon}&lat2=${bottomLefttTileBounds.bottom_left.lat}&lon2=${bottomLefttTileBounds.bottom_left.lon}&lat3=${center.lat}&lon3=${center.lon}`, // パラメータが不正の場合にはリクエストを送信しない
+    shouldShelterFetch
+      ? `/api/shelterApi?lat1=${toRightTileBounds.top_right.lat}&lon1=${toRightTileBounds.top_right.lon}&lat2=${bottomLefttTileBounds.bottom_left.lat}&lon2=${bottomLefttTileBounds.bottom_left.lon}&lat3=${center.lat}&lon3=${center.lon}`
+      : null,
     axios
   );
 
